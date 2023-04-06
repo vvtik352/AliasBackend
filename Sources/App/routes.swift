@@ -1,33 +1,17 @@
 import Vapor
 
-struct UserAuthenticator: BasicAuthenticator {
-    typealias User = App.User
-
-    func authenticate(
-        basic: BasicAuthorization,
-        for request: Request
-    ) -> EventLoopFuture<Void> {
-        if basic.username == "test" && basic.password == "secret" {
-            request.auth.login(User(name: "TestUser"))
-        }
-        return request.eventLoop.makeSucceededFuture(())
-   }
-}
-
 
 func routes(_ app: Application) throws {
     
-    let protected =  app.grouped(UserAuthenticator())
-    app.get { req async in
-        "It works!"
+    app.post("register"){req  -> EventLoopFuture<User> in
+            let data = try req.content.decode(User.self)
+            let user = User(username: data.username, password: data.password)
+        print("--sosi-->>>",req.db.schema("_fluent_migrations") )
+        return  user.save(on: req.db).map{user}
     }
-
-    app.get("hello") { req async -> String in
-        "Hello, world!"
-    }
-
-    app.get("auth") { req in
-        "{d}"
-//        return req
+    
+    app.get("getUsers"){req -> String in
+        print(app.db)
+        return "look in logs"
     }
 }
