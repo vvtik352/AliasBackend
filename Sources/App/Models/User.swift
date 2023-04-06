@@ -48,8 +48,6 @@ extension User: ModelAuthenticatable  {
     static let passwordHashKey = \User.$password
     
     func verify(password: String) throws -> Bool {
-        print("zopa",self.password);
-        
         return try Bcrypt.verify(password, created: self.password)
     }
 }

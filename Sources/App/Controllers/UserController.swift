@@ -14,7 +14,7 @@ struct UserController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let usersRoute = routes.grouped("users")
         usersRoute.post("register", use: register)
-
+//        usersRoute.post("")
 //        let passwordProtected = routes.grouped(User.authenticator())
 //        passwordProtected.post("login") { req -> User in
 //            try req.auth.require(User.self)
@@ -24,7 +24,7 @@ struct UserController: RouteCollection {
     func register(req: Request) throws -> EventLoopFuture<User.Public> {
         let registerRequest = try req.content.decode(RegisterRequest.self)
 
-        guard registerRequest.password.count >= 8 else {
+        guard registerRequest.password.count >= 4 else {
             throw Abort(.badRequest, reason: "Password must be at least 8 characters long")
         }
         
@@ -50,7 +50,7 @@ struct UserController: RouteCollection {
             .unwrap(or: Abort(.notFound, reason: "User not found"))
             .flatMap { user -> EventLoopFuture<String> in
                 do {
-                    let passwordMatch = try Bcrypt.verify(try Bcrypt.hash(loginRequest.password), created: user.password)
+                    let passwordMatch = try Bcrypt.verify(loginRequest.password, created: user.password)
 
                     if passwordMatch {
                         return req.eventLoop.makeSucceededFuture("Login successful")

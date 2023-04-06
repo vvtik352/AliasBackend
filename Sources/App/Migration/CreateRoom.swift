@@ -18,8 +18,7 @@ struct CreateRoom: Migration {
             .unique(on: "roomName")
             .create()
     }
-    
-    
+        
     func revert(on database: Database) -> EventLoopFuture<Void> {
         database.schema("rooms").delete()
     }

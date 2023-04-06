@@ -8,7 +8,7 @@
 import Vapor
 import Fluent
 
-final class Room: Content, Model {
+final class Room: Model, Content {
     static var schema = "rooms"
     
     @ID(key: .id)
@@ -20,11 +20,14 @@ final class Room: Content, Model {
     @Field(key: "adminId")
     var adminId: String
     
-    @Field(key: "teams")
+    @Field(key: "numOfTeams")
     var numOfTeams: Int
     
     @Field(key: "status")
     var status: RoomStatus
+    
+    @Field(key: "users")
+    var usersIds: [UUID]
     
     init() {}
     
@@ -33,7 +36,8 @@ final class Room: Content, Model {
          roomName: String,
          adminId: String,
          numOfTeams: Int,
-         status: RoomStatus
+         status: RoomStatus,
+         usersIds: [UUID]
     ) {
         self.id = id
         self.roomName = roomName
