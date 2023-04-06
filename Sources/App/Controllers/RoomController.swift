@@ -17,23 +17,26 @@ struct RoomController: RouteCollection {
         let guardMiddleware = User.guardMiddleware()
         let protected = roomsRoute.grouped(authMiddleware, guardMiddleware)
         protected.post("create", use: createHandler)
+        protected.post("addUser", use: addUserToRoom)
+        protected.post("removeUser", use: removeUserFromRoom)
         protected.get("openRooms", use: getOpenRoomsHandler)
-        protected.get("delete", use:deleteRoom)
+        protected.delete("delete", use:deleteRoom)
     }
     
     func createHandler(req: Request) throws -> EventLoopFuture<Room> {
-        let roomReq = try req.content.decode(Room.self)
-
-        let room = Room(
-            id: UUID(),
-            roomName: roomReq.roomName,
-            adminId: roomReq.adminId,
-            numOfTeams: roomReq.numOfTeams,
-            status: roomReq.status
-        )
-        
+        let createRoomRequest = try req.content.decode(CreateRoomRequest.self)
+        guard createRoomRequest.numOfTeams < 2 else {
+            throw Abort(.badRequest, reason: "Min teams count is 2")
+        }
+           let room = Room(
+               roomName: createRoomRequest.roomName,
+               adminId: createRoomRequest.adminId,
+               numOfTeams: createRoomRequest.numOfTeams,
+               status: createRoomRequest.status
+           )
+      
         return room.save(on: req.db).map { room }
-        
+
     }
     
     func getOpenRoomsHandler(req: Request) throws -> EventLoopFuture<[Room]> {
@@ -43,6 +46,35 @@ struct RoomController: RouteCollection {
         return rooms
     }
     
+    func addUserToRoom(req: Request) throws -> EventLoopFuture<Room> {
+        let roomId = try req.query.get(UUID.self, at: "roomId")
+        let userId = try req.query.get(UUID.self, at: "userId")
+        
+        return Room.find(roomId, on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .flatMap { room in
+                if !room.userIds.contains(userId) {
+                    room.userIds.append(userId)
+                    return room.save(on: req.db).map { room }
+                } else {
+                    return req.eventLoop.future(room)
+                }
+            }
+    }
+    
+    func removeUserFromRoom(req: Request) throws -> EventLoopFuture<Room> {
+        let roomId = try req.query.get(UUID.self, at: "roomId")
+        let userId = try req.query.get(UUID.self, at: "userId")
+        
+        return Room.find(roomId, on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .flatMap { room in
+                room.userIds.removeAll { $0 == userId }
+                return room.save(on: req.db).map { room }
+            }
+    }
+
+    
     func deleteRoom(req: Request) throws -> EventLoopFuture<HTTPStatus> {
         let adminId = try req.query.get(String.self, at: "adminId")
         
@@ -51,16 +83,4 @@ struct RoomController: RouteCollection {
             .delete()
             .transform(to: .ok)
     }
-//    func deleteHandler(req: Request) throws -> Response{
-//        let roomReq = try req.content.decode(Room.self)
-//
-//        Room.find(req.parameters.get("adminId"), on: req.db)
-//        .unwrap(or: Abort(.notFound))
-//        .flatMap { room in
-//            room.delete(on: req.db)
-//          }
-//        return .ok
-//
-//    }
-    
 }
