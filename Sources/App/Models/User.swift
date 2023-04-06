@@ -1,18 +1,7 @@
 import Vapor
 import Fluent
 
-final class User: Model, Content, ResponseEncodable {
-    func encodeResponse(for request: Vapor.Request) -> NIOCore.EventLoopFuture<Vapor.Response> {
-        do {
-            let response = Response(status: .ok)
-            try response.content.encode(self, using: request.content as! ContentEncoder)
-                  return request.eventLoop.future(response)
-              } catch {
-                  return request.eventLoop.makeFailedFuture(error)
-              }
-        
-    }
-    
+final class User: Model, Content {
     static let schema = "users"
     
     @ID(key: .id)
@@ -35,5 +24,32 @@ final class User: Model, Content, ResponseEncodable {
         self.id = id
         self.username = username
         self.password = password
+    }
+    
+    final class Public: Content {
+        var id: UUID?
+        var username: String
+        
+        init(id:UUID? = nil, username:String){
+            self.id = id
+            self.username = username
+        }
+    }
+}
+
+extension User {
+    func convertToPublic() -> User.Public {
+        User.Public(id:self.id, username: self.username)
+    }
+}
+
+extension User: ModelAuthenticatable  {
+    static let usernameKey = \User.$username
+    static let passwordHashKey = \User.$password
+    
+    func verify(password: String) throws -> Bool {
+        print("zopa",self.password);
+        
+        return try Bcrypt.verify(password, created: self.password)
     }
 }

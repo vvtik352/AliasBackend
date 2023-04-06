@@ -14,12 +14,31 @@ final class Room: Content, Model {
     @ID(key: .id)
     var id: UUID?
     
+    @Field(key: "roomName")
+    var roomName: String
+    
     @Field(key: "adminId")
-    var adminId: UUID
+    var adminId: String
     
     @Field(key: "teams")
     var numOfTeams: Int
     
     @Field(key: "status")
     var status: RoomStatus
+    
+    init() {}
+    
+    init(
+        id: UUID? = nil,
+         roomName: String,
+         adminId: String,
+         numOfTeams: Int,
+         status: RoomStatus
+    ) {
+        self.id = id
+        self.roomName = roomName
+        self.adminId = adminId
+        self.numOfTeams = numOfTeams
+        self.status = status
+    }
 }
