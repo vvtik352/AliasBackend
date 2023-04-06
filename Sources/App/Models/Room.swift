@@ -29,7 +29,7 @@ final class Room: Content, Model {
     init() {}
     
     init(
-        id: UUID? = nil,
+         id: UUID? = nil,
          roomName: String,
          adminId: String,
          numOfTeams: Int,

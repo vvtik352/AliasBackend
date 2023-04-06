@@ -14,7 +14,7 @@ struct RoomController: RouteCollection {
         let roomsRoute = routes.grouped("rooms")
         
         let protected = roomsRoute.grouped(User.authenticator(), User.guardMiddleware())
-        protected.post("createRoom", use: createHandler)
+        roomsRoute.post("createRoom", use: createHandler)
     }
     
     func createHandler(req:Request) throws -> EventLoopFuture<Room> {
