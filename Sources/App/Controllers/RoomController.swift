@@ -25,9 +25,11 @@ struct RoomController: RouteCollection {
             roomName: roomReq.roomName,
             adminId: roomReq.adminId,
             numOfTeams: roomReq.numOfTeams,
-            status: roomReq.status
+            status: roomReq.status,
+            members: roomReq.members
         )
         return roomReq.save(on: req.db).map { room }
     }
+    
     
 }

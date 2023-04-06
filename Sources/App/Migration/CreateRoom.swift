@@ -15,6 +15,7 @@ struct CreateRoom: Migration {
             .field("adminId", .string, .required)
             .field("numOfTeams", .uint8, .required)
             .field("status", .string, .required)
+            .field("members", .array, .required)
             .unique(on: "roomName")
             .create()
     }

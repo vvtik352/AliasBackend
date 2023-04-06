@@ -26,6 +26,9 @@ final class Room: Content, Model {
     @Field(key: "status")
     var status: RoomStatus
     
+    @Field(key: "members")
+    var members: Array<User>
+    
     init() {}
     
     init(
@@ -33,12 +36,14 @@ final class Room: Content, Model {
          roomName: String,
          adminId: String,
          numOfTeams: Int,
-         status: RoomStatus
+         status: RoomStatus,
+         members: [User] = []
     ) {
         self.id = id
         self.roomName = roomName
         self.adminId = adminId
         self.numOfTeams = numOfTeams
         self.status = status
+        self.members = members
     }
 }
