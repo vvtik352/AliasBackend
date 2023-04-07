@@ -18,7 +18,7 @@ final class Room: Model, Content {
     var roomName: String
     
     @Field(key: "adminId")
-    var adminId: String
+    var adminId: UUID?
     
     @Field(key: "numOfTeams")
     var numOfTeams: Int
@@ -34,7 +34,7 @@ final class Room: Model, Content {
     init(
          id: UUID? = nil,
          roomName: String,
-         adminId: String,
+         adminId: UUID?,
          numOfTeams: Int,
          status: RoomStatus,
          userIds: [UUID] = []

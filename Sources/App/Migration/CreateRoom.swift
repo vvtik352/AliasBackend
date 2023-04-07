@@ -12,7 +12,7 @@ struct CreateRoom: Migration {
         database.schema("rooms")
             .id()
             .field("roomName", .string, .required)
-            .field("adminId", .string, .required)
+            .field("adminId", .uuid, .required)
             .field("numOfTeams", .uint8, .required)
             .field("status", .string, .required)
             .field("userIds", .array)

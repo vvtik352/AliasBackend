@@ -10,7 +10,7 @@ import Vapor
 
 struct CreateRoomRequest: Content {
     var roomName: String
-    var adminId: String
+    var adminId: UUID
     var numOfTeams: Int
     var status: RoomStatus
 }
